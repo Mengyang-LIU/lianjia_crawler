@@ -8,11 +8,10 @@ import random
 import re
 import requests
 
-
 # 防止页面time out，如果time out后尝试刷新页面
 def requestDemo(url):
     # 根据更新本地headers
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36'}
+    headers = {'User-Agent': '..'}
     trytimes = 5  # 重试的次数
     for i in range(trytimes):
         try:
@@ -24,8 +23,7 @@ def requestDemo(url):
         except:
             print(f'requests failed {i} time')
 
-
-# area 上海区域（字符串）
+# area 上海区域（string）
 # page 从该页开始，默认为从第一页开始（数字）
 def get_inf(area, page=1):
     # 获得总页数total
@@ -70,7 +68,7 @@ def get_inf(area, page=1):
                     print(str(e))
 
 
-# 以上海市为例
+# 以上海市为例 Shanghai
 # 上海所有区域列表
 # 'pudong', 'minhang', 'baoshan', 'xuhui', 'putuo',
 # 'yangpu', 'changning', 'songjiang', 'jiading', 'huangpu',
