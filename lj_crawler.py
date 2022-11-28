@@ -12,7 +12,7 @@ import requests
 def requestDemo(url):
     # 根据更新本地headers
     headers = {'User-Agent': '..'}
-    trytimes = 5  # 重试的次数
+    trytimes = 5  # times of retry
     for i in range(trytimes):
         try:
             response = requests.get(url, headers=headers, proxies=None, timeout=5)
@@ -23,10 +23,10 @@ def requestDemo(url):
         except:
             print(f'requests failed {i} time')
 
-# area 上海区域（string）
-# page 从该页开始，默认为从第一页开始（数字）
+# area: district name of Shanghai （string）
+# page: the page number starts from，the defalt is from the fisrt page (number）
 def get_inf(area, page=1):
-    # 获得总页数total
+    # get the total number of pages
     host = "https://sh.lianjia.com/ershoufang/"
     tmpSubSoup = BeautifulSoup(req.urlopen(host + area), "lxml")
     total = eval(tmpSubSoup.select('div[class="page-box house-lst-page-box"]')[0].get("page-data"))['totalPage']
@@ -38,7 +38,7 @@ def get_inf(area, page=1):
         else:  # 其他页网址
             pagehtml = requestDemo(host + area + "/pg" + str(i) + "/")
         pageSoup = BeautifulSoup(pagehtml, "lxml")
-        # 获得当前页面的所有房屋列表
+        # get the list of all the houses in the current page 
         url_list = pageSoup.find("ul", {"class": "sellListContent"}).findAll("div", {"class": "title"})
         print(url_list)
         print(len(url_list))
@@ -59,7 +59,7 @@ def get_inf(area, page=1):
                     lst = []
                     for data in datas:
                         lst.append(data.get_text())
-                    # 写入文件
+                    # wirte the file
                     # '房屋名称', '房屋均价', '小区名称', '年份', '房屋户型', '所在楼层', '建筑面积', '户型结构', '套内面积', '建筑类型', '房屋朝向', '建筑结构', '装修情况','梯户比例', '装备电梯'
                     writer.writerow([name, price, communityName, build_year, lst[0], lst[1], lst[2], lst[3], lst[4], lst[5], lst[6], lst[7], lst[8], lst[9], lst[10], i])
                     # 模拟人访问在网页停留时间
