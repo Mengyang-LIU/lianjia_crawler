@@ -8,16 +8,16 @@ import random
 import re
 import requests
 
-# 防止页面time out，如果time out后尝试刷新页面
+# in case of time out，refresh the page
 def requestDemo(url):
-    # 根据更新本地headers
+    # update the headers
     headers = {'User-Agent': '..'}
     trytimes = 5  # times of retry
     for i in range(trytimes):
         try:
             response = requests.get(url, headers=headers, proxies=None, timeout=5)
             html = response.text
-            # 状态码为200即为访问页面成功 返回所需html结束循环
+            # status code being 200 means accessing the page successfully. 
             if response.status_code == 200:
                 return html
         except:
@@ -30,46 +30,47 @@ def get_inf(area, page=1):
     host = "https://sh.lianjia.com/ershoufang/"
     tmpSubSoup = BeautifulSoup(req.urlopen(host + area), "lxml")
     total = eval(tmpSubSoup.select('div[class="page-box house-lst-page-box"]')[0].get("page-data"))['totalPage']
-    # 从1到最后页翻页
+    # turn pages from one to the last
     for i in range(page, total + 1):
         print("page" + str(i))
-        if i == 1:  # 第一页网址
+        if i == 1:  # the website of the first page
             pagehtml = requestDemo(host + area)
-        else:  # 其他页网址
+        else:  # website of the other page
             pagehtml = requestDemo(host + area + "/pg" + str(i) + "/")
         pageSoup = BeautifulSoup(pagehtml, "lxml")
         # get the list of all the houses in the current page 
         url_list = pageSoup.find("ul", {"class": "sellListContent"}).findAll("div", {"class": "title"})
         print(url_list)
         print(len(url_list))
-        # 历遍房屋列表
+        # iterate the housing list
         for l in url_list:
             de_url = l.find('a')['href']
             print(de_url)
-            with open(area + '.csv', 'a', newline='') as f:  # 创建csv
+            with open(area + '.csv', 'a', newline='') as f:  # create csv
                 writer = csv.writer(f)
                 try:
-                    html = requestDemo(de_url)  # 访问房屋网址,timeout设置超时的时间
-                    soup = BeautifulSoup(html, "lxml")  # 解析网址
-                    name = soup.find("h1", {"class": "main"}).get_text()  # 获得房屋名称
-                    price = soup.find("span", {"class": "unitPriceValue"}).get_text()  # 获得房屋均价
-                    communityName = soup.find("div", {"class": "communityName"}).find("a", {"class": "info"}).get_text()  # 获得小区名称
-                    build_year = soup.find("div", {"class": "area"}).find("div", {"class": "subInfo"}).get_text()  # 获得年份
-                    datas = soup.find("div", {"class": "base"}).findAll("li")  # 获得其他信息
+                    html = requestDemo(de_url)  # website of one house
+                    soup = BeautifulSoup(html, "lxml")  # parse the data
+                    name = soup.find("h1", {"class": "main"}).get_text()  # house name
+                    price = soup.find("span", {"class": "unitPriceValue"}).get_text()  # house pice
+                    communityName = soup.find("div", {"class": "communityName"}).find("a", {"class": "info"}).get_text()  # community name
+                    build_year = soup.find("div", {"class": "area"}).find("div", {"class": "subInfo"}).get_text()  # build year
+                    datas = soup.find("div", {"class": "base"}).findAll("li")  # other information
                     lst = []
                     for data in datas:
                         lst.append(data.get_text())
                     # wirte the file
+                    # ' House Name', 'House Price', 'Community Name', 'Build Year', 'House Type', 'Floor', 'Area', 'Structure', 'Using Area', 'Architecture Type', 'Direction', 'Architecture Structure', 'Decoration Condition','Elevator to Door Ratio ', 'Elevator'
                     # '房屋名称', '房屋均价', '小区名称', '年份', '房屋户型', '所在楼层', '建筑面积', '户型结构', '套内面积', '建筑类型', '房屋朝向', '建筑结构', '装修情况','梯户比例', '装备电梯'
                     writer.writerow([name, price, communityName, build_year, lst[0], lst[1], lst[2], lst[3], lst[4], lst[5], lst[6], lst[7], lst[8], lst[9], lst[10], i])
-                    # 模拟人访问在网页停留时间
+                    # time staying on the web
                     time.sleep(16 + random.randint(0, 9))
                 except Exception as e:
                     print(str(e))
 
 
-# 以上海市为例 Shanghai
-# 上海所有区域列表
+# Shanghai as the example
+# list of all the Shanghai district
 # 'pudong', 'minhang', 'baoshan', 'xuhui', 'putuo',
 # 'yangpu', 'changning', 'songjiang', 'jiading', 'huangpu',
 # 'jingan', 'hongkou', 'qingpu', 'fengxian', 'jinshan',
@@ -90,7 +91,7 @@ if __name__ == '__main__':
             areaList.append(found)
     print(areaList)
 
-    # 历遍每一个区域
+    # iterate all the district of the city
     for j in areaList:
         area = j
         print(area)
